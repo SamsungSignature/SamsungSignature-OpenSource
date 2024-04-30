@@ -17,9 +17,6 @@ import samsung.signature.common.exception.SignatureException;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RedisUtils {
 
-	/**
-	 * @throws JsonProcessingException
-	 */
 	public static <T> T get(RedisTemplate<byte[], byte[]> redisTemplate,
 		ObjectMapper objectMapper,
 		Class<T> classType,
