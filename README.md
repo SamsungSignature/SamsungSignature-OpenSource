@@ -59,14 +59,19 @@ public class SignatureConfig {
 
 @GetMapping("/v1/signature/response-example")
 public ResponseEntity<MessageBody<String>> signatureResponseExample() {
-    return ResponseEntityFactory.ok("Hello", "world!");
+    return ResponseEntityFactory.ok("Hello", "Signature GetMethod!");
+}
+
+@PostMapping("/v1/signature/response-example")
+public ResponseEntity<MessageBody<String>> signatureResponseExample() {
+	return ResponseEntityFactory.ok("Hello", "Signature PostMethod!");
 }
 ```
 
 ```json
 {
 	"message": "Hello",
-	"data": "world!"
+	"data": "Signature GetMethod!"
 }
 ```
 
@@ -76,6 +81,14 @@ public ResponseEntity<MessageBody<String>> signatureResponseExample() {
 
 redis에 data를 저장하고 불러오는 유틸입니다.
 
+**application.yml**
+```yaml
+spring:
+  redis:
+    host: {redis.host}
+    port: {redis.port}
+
+```
 **RedisConfig.java**
 ```java
 public class RedisConfig {
@@ -97,6 +110,73 @@ public class RedisConfig {
 		RedisTemplate<byte[], byte[]> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(redisConnectionFactory());
 		return redisTemplate;
+	}
+}
+```
+
+**RedisUtils.java**
+```java
+@RequiredArgsConstructor
+public class redisService{
+	private final RedisTemplate<byte[], byte[]> redisTemplate;
+	private final ObjectMapper objectMapper;
+	private static String signatureKey = "Hello, Signature!";
+	
+	public String insert(){
+		int data = 1;
+		
+		return RedisUtils.put(
+			redisTemplate,
+            objectMapper,
+			1,
+            "key",data);
+    }
+
+	public int select(){
+		return RedisUtils.get(
+			redisTemplate,
+			objectMapper,
+			Integer.class,
+			"key",signatureKey); // 1
+	}
+}
+```
+
+### 5. ApiUtils
+
+서버간의 Api 비동기 통신을 할 수 있는 유틸입니다.
+
+**ApiConfig.java**
+```java
+public class ApiConfig{
+	@Bean
+	public WebClient webClient(){
+		return WebClient.builder()
+            .baseUrl("http://localhost:8080")
+            .build();
+	}
+}
+```
+
+**ApiUtils.java**
+
+```java
+@RequiredArgsConstructor
+public class ApiService {
+    private final WebClient webClient;
+	
+	public void getMethod() {
+		Mono<MessageBody> response = ApiUtils.get(
+			webClient,
+			"/v1/signature/response-example",
+			MessageBody.class);
+	}
+
+	public void postMethod() {
+		Mono<MessageBody> response = ApiUtils.post(
+			webClient,
+			"/v1/signature/response-example",
+			MessageBody.class);
 	}
 }
 ```
