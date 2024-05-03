@@ -39,7 +39,7 @@ dependencies {
 @Configuration
 public class SignatureConfig {
     @Bean
-    public SignatureConfig signatureConfig() {
+    public SignatureAdvice signatureAdvice() {
         return new SignatureAdvice();
     }
 }
