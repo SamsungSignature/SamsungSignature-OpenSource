@@ -120,17 +120,28 @@ public class RedisConfig {
 public class redisService{
 	private final RedisTemplate<byte[], byte[]> redisTemplate;
 	private final ObjectMapper objectMapper;
+	private static final int data = 1;
 	private static String signatureKey = "Hello, Signature!";
 	
 	public String insert(){
-		int data = 1;
 		
 		return RedisUtils.put(
 			redisTemplate,
             objectMapper,
-			1,
-            "key",data);
+			data,
+			"key-",signatureKey);
     }
+
+	public String insertInExpiredTime(){
+		int data = 1;
+
+		return RedisUtils.putWithExpiredTime(
+			redisTemplate,
+			objectMapper,
+			1000,
+			data,
+			"key-",signatureKey);
+	}
 
 	public int select(){
 		return RedisUtils.get(

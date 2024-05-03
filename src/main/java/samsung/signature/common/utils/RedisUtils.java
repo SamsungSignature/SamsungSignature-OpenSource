@@ -2,6 +2,7 @@ package samsung.signature.common.utils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.ObjectUtils;
@@ -33,7 +34,8 @@ public class RedisUtils {
 	private static <T> T readValue(
 		ObjectMapper objectMapper,
 		byte[] redisValue,
-		Class<T> classType) {
+		Class<T> classType
+	) {
 		try {
 			return objectMapper.readValue(redisValue, classType);
 		} catch (IOException ex) {
@@ -45,12 +47,29 @@ public class RedisUtils {
 		RedisTemplate<byte[], byte[]> redisTemplate,
 		ObjectMapper objectMapper,
 		T value,
-		Object... keys) {
+		Object... keys
+	) {
 		try {
 			redisTemplate.opsForValue()
 				.set(makeKey(keys).getBytes(StandardCharsets.UTF_8),
-					objectMapper.writeValueAsString(value)
-						.getBytes(StandardCharsets.UTF_8));
+					objectMapper.writeValueAsString(value).getBytes(StandardCharsets.UTF_8));
+		} catch (JsonProcessingException ex) {
+			throw new SignatureException(ServerErrorCode.BAD_REQUEST);
+		}
+	}
+
+	public static <T> void putWithExpiredTime(
+		RedisTemplate<byte[], byte[]> redisTemplate,
+		ObjectMapper objectMapper,
+		long expiredTime,
+		T value,
+		Object... keys
+	) {
+		try {
+			redisTemplate.opsForValue()
+				.set(makeKey(keys).getBytes(StandardCharsets.UTF_8),
+					objectMapper.writeValueAsString(value).getBytes(StandardCharsets.UTF_8),
+					expiredTime, TimeUnit.MILLISECONDS);
 		} catch (JsonProcessingException ex) {
 			throw new SignatureException(ServerErrorCode.BAD_REQUEST);
 		}
