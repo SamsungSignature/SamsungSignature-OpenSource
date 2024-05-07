@@ -26,15 +26,6 @@ public class ApiUtils {
 		return sendPostRequest(webClient, uri, null, null, body, returnType);
 	}
 
-	/**
-	 * Sends a POST request to the specified URI with the given body.
-	 *
-	 * @param <T> the type of the body
-	 * @param webClient the WebClient instance to use for the request
-	 * @param uri the URI to send the request to
-	 * @param body the body of the request
-	 * @return a Mono<Void> indicating completion
-	 */
 	public static <T> Mono<Void> post(
 		final WebClient webClient,
 		final String uri,
@@ -43,17 +34,6 @@ public class ApiUtils {
 		return sendPostRequest(webClient, uri, null, null, body, Void.class);
 	}
 
-	/**
-	 * Sends a POST request to the specified URI with headers and the given body.
-	 *
-	 * @param <T> the type of the body
-	 * @param webClient the WebClient instance to use for the request
-	 * @param uri the URI to send the request to
-	 * @param accessToken the access token for the Authorization header
-	 * @param UID the UID for the UID header
-	 * @param body the body of the request
-	 * @return a Mono<Void> indicating completion
-	 */
 	public static <T> Mono<Void> postWithHeader(
 		final WebClient webClient,
 		final String uri,
@@ -75,17 +55,6 @@ public class ApiUtils {
 		return sendPostRequest(webClient, uri, accessToken, UID, body, returnType);
 	}
 
-	/**
-	 * Generic method to send a POST request, optionally with headers.
-	 *
-	 * @param <T>         the type of the body
-	 * @param webClient   the WebClient instance
-	 * @param uri         the request URI
-	 * @param accessToken the access token, can be null if not needed
-	 * @param UID         the UID, can be null if not needed
-	 * @param body        the request body
-	 * @return a Mono<Void> indicating completion
-	 */
 	private static <T, R> Mono<R> sendPostRequest(
 		final WebClient webClient,
 		final String uri,
