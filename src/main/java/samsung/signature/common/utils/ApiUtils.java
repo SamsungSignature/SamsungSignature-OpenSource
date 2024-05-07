@@ -15,43 +15,97 @@ public class ApiUtils {
 	 * @param uri the URI to send the request to.
 	 * @param body the request body.
 	 * @param <T> the type of the request body.
+	 * @param <R> the type of the response body.
 	 */
-	public static <T> Mono<Void> post(
-		WebClient webClient,
-		String uri,
-		T body
+	public static <T, R> Mono<R> post(
+		final WebClient webClient,
+		final String uri,
+		final T body,
+		final Class<R> returnType
 	) {
-		return webClient
-			.post()
-			.uri(uri)
-			.bodyValue(body)
-			.retrieve()
-			.bodyToMono(Void.class)
-			;
+		return sendPostRequest(webClient, uri, null, null, body, returnType);
 	}
 
 	/**
-	 * Sends a POST request and logs the completion.
+	 * Sends a POST request to the specified URI with the given body.
 	 *
-	 * @param webClient the WebClient instance used to send the request.
-	 * @param uri the URI to send the request to.
-	 * @param body the request body.
-	 * @param <T> the type of the request body.
-	 * @param <U> the type of the response body.
+	 * @param <T> the type of the body
+	 * @param webClient the WebClient instance to use for the request
+	 * @param uri the URI to send the request to
+	 * @param body the body of the request
+	 * @return a Mono<Void> indicating completion
 	 */
-	public static <T, U> Mono<U> post(
-		WebClient webClient,
-		String uri,
-		T body,
-		Class<U> returnType
+	public static <T> Mono<Void> post(
+		final WebClient webClient,
+		final String uri,
+		final T body
+	) {
+		return sendPostRequest(webClient, uri, null, null, body, Void.class);
+	}
+
+	/**
+	 * Sends a POST request to the specified URI with headers and the given body.
+	 *
+	 * @param <T> the type of the body
+	 * @param webClient the WebClient instance to use for the request
+	 * @param uri the URI to send the request to
+	 * @param accessToken the access token for the Authorization header
+	 * @param UID the UID for the UID header
+	 * @param body the body of the request
+	 * @return a Mono<Void> indicating completion
+	 */
+	public static <T> Mono<Void> postWithHeader(
+		final WebClient webClient,
+		final String uri,
+		final String accessToken,
+		final String UID,
+		final T body
+	) {
+		return sendPostRequest(webClient, uri, accessToken, UID, body, Void.class);
+	}
+
+	public static <T, R> Mono<R> postWithHeader(
+		final WebClient webClient,
+		final String uri,
+		final String accessToken,
+		final String UID,
+		final T body,
+		final Class<R> returnType
+	) {
+		return sendPostRequest(webClient, uri, accessToken, UID, body, returnType);
+	}
+
+	/**
+	 * Generic method to send a POST request, optionally with headers.
+	 *
+	 * @param <T>         the type of the body
+	 * @param webClient   the WebClient instance
+	 * @param uri         the request URI
+	 * @param accessToken the access token, can be null if not needed
+	 * @param UID         the UID, can be null if not needed
+	 * @param body        the request body
+	 * @return a Mono<Void> indicating completion
+	 */
+	private static <T, R> Mono<R> sendPostRequest(
+		final WebClient webClient,
+		final String uri,
+		final String accessToken,
+		final String UID,
+		final T body,
+		final Class<R> returnType
 	) {
 		return webClient
 			.post()
 			.uri(uri)
 			.bodyValue(body)
-			.retrieve()
-			.bodyToMono(returnType)
-			;
+			.headers(headers -> {
+				if (accessToken != null && UID != null) {
+					headers.set("Authorization", accessToken);
+					headers.set("UID", UID);
+				}
+			})
+			.retrieve().
+			bodyToMono(returnType);
 	}
 
 	/**
@@ -61,15 +115,10 @@ public class ApiUtils {
 	 * @param uri the URI to send the request to.
 	 */
 	public static Mono<Void> get(
-		WebClient webClient,
-		String uri
+		final WebClient webClient,
+		final String uri
 	) {
-		return webClient
-			.get()
-			.uri(uri)
-			.retrieve()
-			.bodyToMono(Void.class)
-			;
+		return sendGetRequest(webClient, uri, null, null, Void.class);
 	}
 
 	/**
@@ -78,18 +127,52 @@ public class ApiUtils {
 	 * @param webClient the WebClient instance used to send the request.
 	 * @param uri the URI to send the request to.
 	 * @param returnType the request body.
-	 * @param <T> the type of the request body.
+	 * @param <R> the type of the request body.
 	 */
-	public static <T> Mono<T> get(
+	public static <R> Mono<R> get(
 		WebClient webClient,
 		String uri,
+		Class<R> returnType
+	) {
+		return sendGetRequest(webClient, uri, null, null, returnType);
+	}
+
+	public static Mono<Void> getWithHeader(
+		final WebClient webClient,
+		final String uri,
+		final String accessToken,
+		final String UID
+	) {
+		return sendGetRequest(webClient, uri, accessToken, UID, Void.class);
+	}
+
+	public static <T> Mono<T> getWithHeader(
+		WebClient webClient,
+		String uri,
+		final String accessToken,
+		final String UID,
 		Class<T> returnType
+	) {
+		return sendGetRequest(webClient, uri, accessToken, UID, returnType);
+	}
+
+	private static <T> Mono<T> sendGetRequest(
+		final WebClient webClient,
+		final String uri,
+		final String accessToken,
+		final String UID,
+		final Class<T> returnType
 	) {
 		return webClient
 			.get()
 			.uri(uri)
-			.retrieve()
-			.bodyToMono(returnType)
-			;
+			.headers(headers -> {
+				if (accessToken != null && UID != null) {
+					headers.set("Authorization", accessToken);
+					headers.set("UID", UID);
+				}
+			})
+			.retrieve().
+			bodyToMono(returnType);
 	}
 }
