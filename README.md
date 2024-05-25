@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.SamsungSignature:signature-common:0.0.3'
+    implementation 'com.github.SamsungSignature:signature-common:0.0.6'
 }
 ```
 
