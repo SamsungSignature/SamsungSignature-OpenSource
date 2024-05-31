@@ -127,14 +127,12 @@ public class redisService{
 		
 		return RedisUtils.put(
 			redisTemplate,
-            objectMapper,
+            		objectMapper,
 			data,
 			"key-",signatureKey);
     }
 
 	public String insertInExpiredTime(){
-		int data = 1;
-
 		return RedisUtils.putWithExpiredTime(
 			redisTemplate,
 			objectMapper,
@@ -148,7 +146,7 @@ public class redisService{
 			redisTemplate,
 			objectMapper,
 			Integer.class,
-			"key",signatureKey); // 1
+			"key",signatureKey);
 	}
 }
 ```
